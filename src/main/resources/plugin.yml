@@ -1,0 +1,23 @@
+api-version: '1.21'
+
+name: ${project.name}
+version: ${project.version}
+description: ${project.description}
+
+main: de.vipmarcel.survivalchallenges.SurvivalChallenges
+
+authors: [ VIPMarcel ]
+website: https://vipmarcel.de/
+
+commands:
+  team:
+    description: choose your challenge team
+    usage: /team
+  scadmin:
+    description: disable and enable teams, set the active challenge(s) for the team(s), much more...
+    usage: /scadmin
+    permission: survivalchallenge.command.scadmin
+
+permissions:
+  survivalchallenge.command.scadmin:
+    default: OP
