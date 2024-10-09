@@ -2,13 +2,18 @@ package de.vipmarcel.survivalchallenges.team;
 
 import de.vipmarcel.survivalchallenges.SurvivalChallenges;
 import de.vipmarcel.survivalchallenges.utils.SCLogger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -32,13 +37,63 @@ public abstract class Team implements Listener {
         this.teamMaterial = teamMaterial;
     }
 
-    protected void onEnable() {};
-    protected void onDisable() {};
+    protected void onEnable() {}
+    protected void onDisable() {}
 
-    protected void onPlayerEnter(UUID uuid) {};
-    protected void onPlayerLeave(UUID uuid) {};
+    protected void onPlayerEnter(UUID uuid) {}
+    protected void onPlayerLeave(UUID uuid) {}
 
-    protected boolean canInitialize() { return true; };
+    protected boolean canInitialize() {
+        return true;
+    }
+
+    private void joinMessage(UUID uuid) {
+        int r = this.teamColor.getRed();
+        int g = this.teamColor.getGreen();
+        int b = this.teamColor.getBlue();
+
+        Player player = Bukkit.getPlayer(uuid);
+        if(player != null) {
+            player.playerListName(Component.text()
+                    .append(Component.text(player.getName())).color(TextColor.color(r, g, b))
+                    .build());
+            player.displayName(Component.text()
+                    .append(Component.text(player.getName())).color(TextColor.color(r, g, b))
+                    .build());
+        }
+
+        TextComponent message = Component.text()
+                .append(Component.text("§6§lSC §8| §7"))
+                .append(Component.text("player §e "))
+                .append(Component.text(Objects.requireNonNull(Bukkit.getOfflinePlayer(uuid).getName())))
+                .append(Component.text(" §7joined team "))
+                .append(Component.text(this.name)).color(TextColor.color(r, g, b))
+                .build();
+
+        Bukkit.broadcast(message);
+    }
+
+    private void quitMessage(UUID uuid) {
+        int r = this.teamColor.getRed();
+        int g = this.teamColor.getGreen();
+        int b = this.teamColor.getBlue();
+
+        Player player = Bukkit.getPlayer(uuid);
+        if(player != null) {
+            player.playerListName(Component.text(player.getName()));
+            player.displayName(Component.text(player.getName()));
+        }
+
+        TextComponent message = Component.text()
+                .append(Component.text("§6§lSC §8| §7"))
+                .append(Component.text("player §e "))
+                .append(Component.text(Objects.requireNonNull(Bukkit.getOfflinePlayer(uuid).getName())))
+                .append(Component.text(" §7left team "))
+                .append(Component.text(this.name)).color(TextColor.color(r, g, b))
+                .build();
+
+        Bukkit.broadcast(message);
+    }
 
     public boolean enable() {
         if(this.isEnabled()) {
@@ -78,6 +133,7 @@ public abstract class Team implements Listener {
         for(UUID uuid : uuids) {
             this.activePlayers.add(uuid);
             this.onPlayerEnter(uuid);
+            this.joinMessage(uuid);
         }
     }
 
@@ -90,6 +146,7 @@ public abstract class Team implements Listener {
             if(this.activePlayers.contains(uuid)) {
                 this.activePlayers.remove(uuid);
                 this.onPlayerLeave(uuid);
+                this.quitMessage(uuid);
             }
         }
     }

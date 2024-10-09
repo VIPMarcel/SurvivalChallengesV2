@@ -3,6 +3,9 @@ package de.vipmarcel.survivalchallenges.challenge;
 import de.vipmarcel.survivalchallenges.SurvivalChallenges;
 import de.vipmarcel.survivalchallenges.team.Team;
 import de.vipmarcel.survivalchallenges.utils.SCLogger;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
@@ -30,13 +33,47 @@ public abstract class Challenge implements Listener {
         this.challengeGoal = challengeGoal;
     }
 
-    protected void onEnable() {};
-    protected void onDisable() {};
+    protected void onEnable() {}
+    protected void onDisable() {}
 
-    protected void onTeamEnter(Team team) {};
-    protected void onTeamLeave(Team team) {};
+    protected void onTeamEnter(Team team) {}
+    protected void onTeamLeave(Team team) {}
 
-    protected boolean canInitialize() { return true; };
+    protected boolean canInitialize() {
+        return true;
+    }
+
+    private void joinMessage(Team team) {
+        int r = team.getTeamColor().getRed();
+        int g = team.getTeamColor().getGreen();
+        int b = team.getTeamColor().getBlue();
+
+        TextComponent message = Component.text()
+                .append(Component.text("§6§lSC §8| §7"))
+                .append(Component.text("team "))
+                .append(Component.text(this.name)).color(TextColor.color(r, g, b))
+                .append(Component.text(" §7selected challenge §e"))
+                .append(Component.text(this.name))
+                .build();
+
+        Bukkit.broadcast(message);
+    }
+
+    private void quitMessage(Team team) {
+        int r = team.getTeamColor().getRed();
+        int g = team.getTeamColor().getGreen();
+        int b = team.getTeamColor().getBlue();
+
+        TextComponent message = Component.text()
+                .append(Component.text("§6§lSC §8| §7"))
+                .append(Component.text("team "))
+                .append(Component.text(this.name)).color(TextColor.color(r, g, b))
+                .append(Component.text(" §7unselected challenge §e"))
+                .append(Component.text(this.name))
+                .build();
+
+        Bukkit.broadcast(message);
+    }
 
     void checkExpiredTeams() {
         long currentTimeMillis = System.currentTimeMillis();
@@ -103,6 +140,7 @@ public abstract class Challenge implements Listener {
             }
 
             this.onTeamEnter(team);
+            this.joinMessage(team);
         }
     }
 
@@ -116,6 +154,7 @@ public abstract class Challenge implements Listener {
                 this.activeTeams.remove(team);
                 this.activeTeamsExpire.remove(team);
                 this.onTeamLeave(team);
+                this.quitMessage(team);
             }
         }
     }
